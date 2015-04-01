@@ -1,0 +1,32 @@
+{
+    "name": "tacit/client",
+    "description": "An API Client library for Tacit APIs",
+    "keywords": ["REST"],
+    "homepage": "http://github.com/opengeek/Tacit-client",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jason Coward",
+            "email": "jason@opengeek.com",
+            "homepage": "http://www.jasoncoward.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.4",
+        "guzzlehttp/guzzle": "^5.0",
+        "slim/slim": "^2.4",
+        "slim/views": "^0.1.3",
+        "twig/twig": "^1.18.0",
+        "flynsarmy/slim-monolog": "^1.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^4.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Tacit\\": ["src/", "tests/"]
+        }
+    }
+}
