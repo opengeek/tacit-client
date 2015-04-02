@@ -10,16 +10,21 @@
 
 namespace Tacit\Middleware;
 
-
 use Slim\Middleware;
 use Tacit\Client\Principal;
 
+/**
+ * Slim Middleware for handling OAuth2 Sessions from a Tacit app.
+ *
+ * @package Tacit\Middleware
+ */
 class Session extends Middleware
 {
     /**
      * Load an authenticated user from the session if it exists.
      */
-    public function call() {
+    public function call()
+    {
         /** @var Principal $principal */
         $principal = Principal::instance();
         if ($principal) {
@@ -28,8 +33,8 @@ class Session extends Middleware
             $user = $principal->getUser();
             if (null !== $user) {
                 $data['username'] = $user['username'];
-                $data['user_id']  = $user['id'];
-                $data['user']     = $user;
+                $data['user_id'] = $user['id'];
+                $data['user'] = $user;
             };
             if ($principal->hasRefreshToken()) {
                 $data['refreshToken'] = $principal->getRefreshToken();

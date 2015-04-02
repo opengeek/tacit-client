@@ -10,10 +10,15 @@
 
 namespace Tacit\Client;
 
+/**
+ * A GuzzleHttp\Message\Response wrapper for Tacit responses.
+ *
+ * @package Tacit\Client
+ */
 class Response
 {
     /**
-     * @var \Guzzle\Http\Message\Response
+     * @var \GuzzleHttp\Message\Response
      */
     protected $httpResponse;
 
@@ -24,7 +29,7 @@ class Response
     /**
      * Wrap a Guzzle HTTP response.
      *
-     * @param \Guzzle\Http\Message\Response $original
+     * @param \GuzzleHttp\Message\Response $original
      *
      * @throws ClientException
      * @throws RestfulException
@@ -34,10 +39,10 @@ class Response
     {
         $this->httpResponse = $original;
 
-        $contentType = $this->httpResponse->getContentType();
+        $contentType = $this->httpResponse->getHeader('Content-Type');
         switch ($contentType) {
             case 'text/html':
-                $this->resource = $this->httpResponse->getBody(true);
+                $this->resource = $this->httpResponse->getBody();
                 break;
             case 'application/json':
             default:
@@ -76,19 +81,40 @@ class Response
         }
     }
 
+    /**
+     * Get the _embedded data from the Resource.
+     *
+     * @param null|string $key An optional key to limit the embedded data element(s) to return.
+     *
+     * @return array|bool An array of embedded data elements or FALSE if not set.
+     */
     public function getEmbedded($key = null)
     {
         if (is_string($key) && $key !== '') {
             return isset($this->embedded[$key]) ? $this->embedded[$key] : false;
         }
+
         return $this->embedded;
     }
 
+    /**
+     * Get the _links metadata from the Resource.
+     *
+     * @return array An array of link relations defined for the Resource.
+     */
     public function getLinks()
     {
         return $this->links;
     }
 
+    /**
+     * Get the data of the Resource represented by the Response.
+     *
+     * @param bool $includeEmbedded Indicate if _embedded data should be included.
+     * @param bool $includeLinks Indicate if _links metadata should be included.
+     *
+     * @return array An array of data representing the Resource from the Response.
+     */
     public function getResource($includeEmbedded = false, $includeLinks = false)
     {
         $resource = $this->resource;
@@ -98,24 +124,45 @@ class Response
         if (false === $includeLinks) {
             unset($resource['_links']);
         }
+
         return $resource;
     }
 
+    /**
+     * Determine if the Response is a client-side error (4xx).
+     *
+     * @return bool TRUE if the Response has a 4xx status code, FALSE otherwise.
+     */
     public function isClientError()
     {
-        return $this->httpResponse->isClientError();
+        return $this->isError() && $this->httpResponse->getStatusCode() < 500;
     }
 
+    /**
+     * Determine if the Response is an error (4xx or 5xx).
+     *
+     * @return bool TRUE if the Response has a 4xx or 5xx status code, FALSE otherwise.
+     */
     public function isError()
     {
-        return $this->httpResponse->isError();
+        return $this->httpResponse->getStatusCode() >= 400;
     }
 
+    /**
+     * Determine if the Response is a server-side error (5xx).
+     *
+     * @return bool TRUE if the Response has a 5xx status code, FALSE otherwise.
+     */
     public function isServerError()
     {
-        return $this->httpResponse->isServerError();
+        return $this->isError() && $this->httpResponse->getStatusCode() >= 500;
     }
 
+    /**
+     * Return a string representation of the Response.
+     *
+     * @return string
+     */
     public function __toString()
     {
         return $this->httpResponse->__toString();

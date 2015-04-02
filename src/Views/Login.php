@@ -10,10 +10,14 @@
 
 namespace Tacit\Views;
 
-
 use Tacit\Client\Principal;
 use Tacit\Client\RestfulException;
 
+/**
+ * A Login View.
+ *
+ * @package Tacit\Views
+ */
 class Login extends View
 {
     public function handle()
@@ -41,17 +45,16 @@ class Login extends View
     {
         try {
             if (Principal::authenticate($this->app->request->post('username'), $this->app->request->post('password'))) {
-                $this->app->redirect($this->app->request->post('return', $this->app->request->getUrl() . $this->app->urlFor('Home')));
+                $this->app->redirect($this->app->request->post('return',
+                    $this->app->request->getUrl() . $this->app->urlFor('Home')));
             }
         } catch (RestfulException $e) {
             $er = $e->getResource();
-            $this->app->view()->appendData(
-                [
-                    'errorMessage' => $e->getMessage(),
-                    'errorDescription' => $e->getDescription(),
-                    'errors' => isset($er['property']) && is_array($er['property']) ? $er['property'] : []
-                ]
-            );
+            $this->app->view()->appendData([
+                'errorMessage' => $e->getMessage(),
+                'errorDescription' => $e->getDescription(),
+                'errors' => isset($er['property']) && is_array($er['property']) ? $er['property'] : []
+            ]);
         }
 
         $this->app->render('login.twig', $this->app->request->post(null, []));

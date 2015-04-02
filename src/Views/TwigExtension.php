@@ -10,9 +10,13 @@
 
 namespace Tacit\Views;
 
-
 use Slim\Slim;
 
+/**
+ * TwigExtension class for the Tacit Client package.
+ *
+ * @package Tacit\Views
+ */
 class TwigExtension extends \Twig_Extension
 {
 
@@ -41,13 +45,21 @@ class TwigExtension extends \Twig_Extension
         ];
     }
 
+    /**
+     * Returns how long ago an end time (or current time) is from a specified start time.
+     *
+     * @param string|\DateTime      $start The start time.
+     * @param null|string|\DateTime $end The end time or null to use the current time.
+     *
+     * @return string A string describing how long ago the start time was.
+     */
     public function ago($start, $end = null)
     {
         $then = new \DateTime(strtotime($start));
         if (!($then instanceof \DateTime)) {
             $then = new \DateTime();
         }
-        $now  = $end ? new \DateTime(strtotime($end)) : new \DateTime();
+        $now = $end ? new \DateTime(strtotime($end)) : new \DateTime();
 
         $interval = $now->diff($then);
 
@@ -69,9 +81,18 @@ class TwigExtension extends \Twig_Extension
         if ($interval->s > 30) {
             return 'less than a minute ago';
         }
+
         return 'just now';
     }
 
+    /**
+     * Get the referrer from the request.
+     *
+     * @param bool   $localOnly
+     * @param string $appName
+     *
+     * @return string
+     */
     public function referrer($localOnly = true, $appName = 'default')
     {
         $app = Slim::getInstance($appName);
@@ -83,9 +104,18 @@ class TwigExtension extends \Twig_Extension
                 $referrer = $app->request()->getUrl() . $app->request->getRootUri();
             }
         }
+
         return $referrer;
     }
 
+    /**
+     * Get the URI representing the current view.
+     *
+     * @param bool   $withBase
+     * @param string $appName
+     *
+     * @return string
+     */
     public function self($withBase = true, $appName = 'default')
     {
         $request = Slim::getInstance($appName)->request();
@@ -94,9 +124,18 @@ class TwigExtension extends \Twig_Extension
             $uri .= $request->getRootUri();
         }
         $uri .= $request->getResourceUri();
+
         return $uri;
     }
 
+    /**
+     * Make a string plural by adding an s if the value is > 1.
+     *
+     * @param int    $value The integer to evaluate.
+     * @param string $singular The singular form to pluralize if needed.
+     *
+     * @return string The pluralized or singular string representation.
+     */
     private function pluralize($value, $singular)
     {
         return $value > 1 ? $singular . 's' : $singular;

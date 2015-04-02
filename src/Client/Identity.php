@@ -10,7 +10,11 @@
 
 namespace Tacit\Client;
 
-
+/**
+ * A Simple client credentials Identity implementation that loads entries from a PHP file.
+ *
+ * @package Tacit\Client
+ */
 class Identity
 {
     /**
@@ -19,10 +23,12 @@ class Identity
     protected static $identities = [];
 
     /**
-     * @param string $identifier
-     * @param null   $location
+     * Get the secretKey defined for an Identity.
      *
-     * @return string|bool
+     * @param string      $identifier The client identifier.
+     * @param null|string $location An optional file path to load identities from.
+     *
+     * @return string|bool The secretKey or false if the identity is invalid or does not have a secretKey defined.
      */
     public static function getSecretKey($identifier, $location = null)
     {
@@ -35,13 +41,16 @@ class Identity
         if (!isset(self::$identities[$identifier]['secretKey'])) {
             return false;
         }
+
         return self::$identities[$identifier]['secretKey'];
     }
 
     /**
-     * @param null|string $location
+     * Load identities from a PHP file.
      *
-     * @throws \RuntimeException
+     * @param null|string $location The file location to load the identities from.
+     *
+     * @throws \RuntimeException If the file does not exist or is not readable.
      */
     private static function loadIdentities($location = null)
     {

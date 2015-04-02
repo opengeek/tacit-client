@@ -10,9 +10,13 @@
 
 namespace Tacit\Views;
 
-
 use Tacit\Client\Principal;
 
+/**
+ * A Logout View.
+ *
+ * @package Tacit\Views
+ */
 class Logout extends View
 {
     public function handle()
@@ -26,7 +30,8 @@ class Logout extends View
                     $this->app->redirect($this->app->request->getUrl() . $this->app->urlFor('Login'));
                 }
 
-                $redirectUrl = $this->app->request->params('return') ?: $this->app->request->getUrl() . $this->app->urlFor('Home');
+                $redirectUrl = $this->app->request->params('return')
+                    ?: $this->app->request->getUrl() . $this->app->urlFor('Home');
 
                 Principal::endSession();
 

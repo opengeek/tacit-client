@@ -13,22 +13,33 @@ namespace Tacit;
 use GuzzleHttp\Event\BeforeEvent;
 use GuzzleHttp\Exception\RequestException;
 use Slim\Slim;
+use Tacit\Client\Identity;
+use Tacit\Client\Principal;
 
 /**
- * The Tacit API Client.
+ * The base Tacit API Client.
  *
  * @package Tacit
  */
 class Client
 {
+    /**
+     * @var array Unique client instances by endpoint.
+     */
     protected static $instances = [];
 
+    /**
+     * @var string The service endpoint to be used by the Client.
+     */
     protected $endPoint;
 
+    /**
+     * @var \GuzzleHttp\Client The HTTP client handling the requests.
+     */
     protected $httpClient;
 
     /**
-     * Get a unique client by the specified endpoint.
+     * Get a unique client instance by the specified endpoint.
      *
      * @param string $endPoint
      *
@@ -40,6 +51,7 @@ class Client
         if (!isset(self::$instances[$key])) {
             self::$instances[$key] = new static($endPoint);
         }
+
         return self::$instances[$key];
     }
 
@@ -52,33 +64,34 @@ class Client
      */
     public static function getAccessToken($endPoint)
     {
-        if (!isset($_SESSION[Client\Principal::SESSION_KEY_PRINCIPAL])) {
+        if (!isset($_SESSION[Principal::SESSION_KEY_PRINCIPAL])) {
             $clientKey = Slim::getInstance()->config('identity');
-            $clientSecret = Client\Identity::getSecretKey($clientKey);
+            $clientSecret = Identity::getSecretKey($clientKey);
             $client = new \GuzzleHttp\Client(['base_url' => rtrim($endPoint, '/')]);
             try {
                 $response = $client->post('/security/token', [
-                        'auth' => [$clientKey, $clientSecret],
-                        'body' => json_encode([
-                            'grant_type' => 'client_credentials',
-                            'scope' => 'public'
-                        ]),
-                        'headers' => [
-                            'Content-Type' => 'application/json'
-                        ]
-                    ]);
+                    'auth' => [$clientKey, $clientSecret],
+                    'body' => json_encode([
+                        'grant_type' => 'client_credentials',
+                        'scope' => 'public'
+                    ]),
+                    'headers' => [
+                        'Content-Type' => 'application/json'
+                    ]
+                ]);
             } catch (RequestException $e) {
                 return false;
             }
 
-            $parsed = json_decode($response->getBody(true), true);
+            $parsed = $response->json();
             if (!isset($parsed['access_token'])) {
                 return false;
             }
 
-            $_SESSION[Client\Principal::SESSION_KEY_PRINCIPAL] = $parsed;
+            $_SESSION[Principal::SESSION_KEY_PRINCIPAL] = $parsed;
         }
-        return $_SESSION[Client\Principal::SESSION_KEY_PRINCIPAL]['access_token'];
+
+        return $_SESSION[Principal::SESSION_KEY_PRINCIPAL]['access_token'];
     }
 
     public function __construct($entryPoint)

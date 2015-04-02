@@ -10,18 +10,55 @@
 
 namespace Tacit\Views;
 
-
-use Tacit\Client\Principal;
 use Slim\Slim;
+use Tacit\Client\Principal;
 
+/**
+ * Simple View class for a Tacit web app.
+ *
+ * @package Tacit\Views
+ */
 class View
 {
+    /**
+     * @var Slim The Slim application controlling the View.
+     */
     protected $app;
+    /**
+     * @var string Space-delimited string of scopes a Principal must have to access the view.
+     */
     protected $scope;
 
+    /**
+     * Create an instance of the View.
+     *
+     * @param Slim   $app The Slim app controlling the View.
+     * @param string $scope Space-delimited string of scopes to require for access.
+     */
+    public function __construct(Slim $app, $scope = '')
+    {
+        $this->app =& $app;
+        $this->scope = $scope;
+
+        if (!empty($this->scope)) {
+            $this->checkScope();
+        }
+    }
+
+    /**
+     * Determine if a Principal has the scope(s) required to access this View.
+     *
+     * @param string    $scope Space-delimited string of scopes to check.
+     * @param null|Slim $app An optional Slim app containing the Principal.
+     *
+     * @throws \Slim\Exception\Stop
+     * @return bool
+     */
     public static function hasScope($scope, $app = null)
     {
-        if (null === $app) $app = Slim::getInstance();
+        if (null === $app) {
+            $app = Slim::getInstance();
+        }
 
         /** @var Principal $principal */
         $principal = $app->container->get('principal');
@@ -34,17 +71,15 @@ class View
 
         $scope = explode(' ', $scope);
         $matches = array_intersect($scope, $scopes);
+
         return count($matches) === count($scope);
     }
 
-    public function __construct(Slim $app, $scope = '')
-    {
-        $this->app =& $app;
-        $this->scope = $scope;
-
-        if (!empty($this->scope)) $this->checkScope();
-    }
-
+    /**
+     * Handle a request for a View by a specified template name.
+     *
+     * @throws \Slim\Exception\Stop To halt execution and finalize the response.
+     */
     public function handle()
     {
         $argCount = func_num_args();
@@ -62,11 +97,13 @@ class View
         $this->app->notFound();
     }
 
+    /**
+     * Check to see if the Principal has appropriate scope to access the Resource.
+     */
     protected function checkScope()
     {
         if (!static::hasScope($this->scope)) {
             $this->app->halt(403, 'You do not have rights to access this resource.');
         }
     }
-
 }
