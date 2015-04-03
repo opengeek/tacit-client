@@ -15,6 +15,7 @@ use GuzzleHttp\Exception\RequestException;
 use Slim\Slim;
 use Tacit\Client\Identity;
 use Tacit\Client\Principal;
+use Tacit\Client\Response;
 
 /**
  * The base Tacit API Client.
@@ -107,7 +108,7 @@ class Client
      */
     public function __construct(Slim &$app, $entryPoint)
     {
-        $entryPoint = rtrim($entryPoint, '/');
+        $entryPoint = rtrim($entryPoint, '/') . '/';
         $this->endPoint = $entryPoint;
         $this->httpClient = new \GuzzleHttp\Client(['base_url' => $entryPoint]);
         $this->httpClient->getEmitter()->on('before', function (BeforeEvent $event) use ($app, $entryPoint) {
@@ -118,36 +119,36 @@ class Client
 
     public function get($uri = null, array $headers = [], $options = [])
     {
-        return $this->httpClient->get($uri, array_merge(['headers' => $headers], $options));
+        return new Response($this->httpClient->get($uri, array_merge(['headers' => $headers], $options)));
     }
 
     public function head($uri = null, array $headers = [], array $options = [])
     {
-        return $this->httpClient->head($uri, array_merge(['headers' => $headers], $options));
+        return new Response($this->httpClient->head($uri, array_merge(['headers' => $headers], $options)));
     }
 
     public function delete($uri = null, array $headers = [], $body = null, array $options = [])
     {
-        return $this->httpClient->delete($uri, array_merge(['headers' => $headers, 'body' => $body], $options));
+        return new Response($this->httpClient->delete($uri, array_merge(['headers' => $headers, 'body' => $body], $options)));
     }
 
     public function put($uri = null, array $headers = [], $body = null, array $options = [])
     {
-        return $this->httpClient->put($uri, array_merge(['headers' => $headers, 'body' => $body], $options));
+        return new Response($this->httpClient->put($uri, array_merge(['headers' => $headers, 'body' => $body], $options)));
     }
 
     public function patch($uri = null, array $headers = [], $body = null, array $options = [])
     {
-        return $this->httpClient->patch($uri, array_merge(['headers' => $headers, 'body' => $body], $options));
+        return new Response($this->httpClient->patch($uri, array_merge(['headers' => $headers, 'body' => $body], $options)));
     }
 
     public function post($uri = null, array $headers = [], $body = null, array $options = [])
     {
-        return $this->httpClient->post($uri, array_merge(['headers' => $headers, 'body' => $body], $options));
+        return new Response($this->httpClient->post($uri, array_merge(['headers' => $headers, 'body' => $body], $options)));
     }
 
     public function options($uri = null, array $options = [])
     {
-        return $this->httpClient->options($uri, $options);
+        return new Response($this->httpClient->options($uri, $options));
     }
 }

@@ -10,6 +10,8 @@
 
 namespace Tacit\Client;
 
+use GuzzleHttp\Message\ResponseInterface;
+
 /**
  * A GuzzleHttp\Message\Response wrapper for Tacit responses.
  *
@@ -29,13 +31,11 @@ class Response
     /**
      * Wrap a Guzzle HTTP response.
      *
-     * @param \GuzzleHttp\Message\Response $original
+     * @param \GuzzleHttp\Message\ResponseInterface $original
      *
-     * @throws ClientException
      * @throws RestfulException
-     * @throws ServerException
      */
-    public function __construct($original)
+    public function __construct(ResponseInterface $original)
     {
         $this->httpResponse = $original;
 
@@ -72,9 +72,9 @@ class Response
                 }
             }
             if ($this->isClientError()) {
-                throw new ClientException($this->resource);
+                throw new RestfulException($this->resource);
             } elseif ($this->isServerError()) {
-                throw new ServerException($this->resource);
+                throw new RestfulException($this->resource);
             } else {
                 throw new RestfulException($this->resource);
             }
