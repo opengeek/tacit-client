@@ -30,9 +30,10 @@ class Identity
      */
     function __construct($location)
     {
-        if (!is_readable($this->location)) {
-            throw new \RuntimeException("Invalid Identities location: {$this->location} does not exist or is not readable");
+        if (!is_readable($location)) {
+            throw new \RuntimeException("Invalid Identities location: {$location} does not exist or is not readable");
         }
+        $this->location = $location;
         $this->identities = include $this->location;
     }
 
