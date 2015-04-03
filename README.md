@@ -13,9 +13,13 @@ user@host:~$ composer require "tacit/client dev-master"
 
 ## Usage
 
-In your gateway PHP file for the application, add the API Client as a singleton to the DI container:
+In your gateway PHP file for the application, add the Identities provider and API Client as singletons to the DI container:
 
 ```php
+$app->container->singleton('identities', function() use ($app) {
+    return (new \Tacit\Client\Identity($app->config('api.identities')));
+});
+
 $app->container->singleton('api', function() use ($app) {
     return (new \Tacit\Client($app, $app->config('api.endpoint')));
 });
