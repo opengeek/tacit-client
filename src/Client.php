@@ -41,15 +41,16 @@ class Client
     /**
      * Get a unique client instance by the specified endpoint.
      *
+     * @param Slim   &$app
      * @param string $endPoint
      *
-     * @return self
+     * @return Client
      */
-    public static function instance($endPoint)
+    public static function instance(Slim &$app, $endPoint)
     {
         $key = "{$endPoint}";
         if (!isset(self::$instances[$key])) {
-            self::$instances[$key] = new static($endPoint);
+            self::$instances[$key] = new static($app, $endPoint);
         }
 
         return self::$instances[$key];
@@ -58,15 +59,19 @@ class Client
     /**
      * Get an OAuth2 Access Token using the client_credentials grant type.
      *
+     * @param Slim   &$app A reference to the Slim app.
      * @param string $endPoint The URL of the API endpoint.
      *
-     * @return string|bool A valid access token or false if one cannot be retrieved.
+     * @return bool|string A valid access token or false if one cannot be retrieved.
      */
-    public static function getAccessToken($endPoint)
+    public static function getAccessToken(Slim &$app, $endPoint)
     {
         if (!isset($_SESSION[Principal::SESSION_KEY_PRINCIPAL])) {
-            $clientKey = Slim::getInstance()->config('identity');
-            $clientSecret = Identity::getSecretKey($clientKey);
+            $clientKey = $app->config('api.identity');
+            /** @var Identity $identities */
+            $identities = $app->container->get('identities');
+            $clientSecret = $identities->getSecretKey($clientKey);
+
             $client = new \GuzzleHttp\Client(['base_url' => rtrim($endPoint, '/')]);
             try {
                 $response = $client->post('/security/token', [
@@ -94,13 +99,19 @@ class Client
         return $_SESSION[Principal::SESSION_KEY_PRINCIPAL]['access_token'];
     }
 
-    public function __construct($entryPoint)
+    /**
+     * Construct a new API Client for a provided app and entryPoint.
+     *
+     * @param Slim   &$app
+     * @param string $entryPoint
+     */
+    public function __construct(Slim &$app, $entryPoint)
     {
         $entryPoint = rtrim($entryPoint, '/');
         $this->endPoint = $entryPoint;
         $this->httpClient = new \GuzzleHttp\Client(['base_url' => $entryPoint]);
-        $this->httpClient->getEmitter()->on('before', function (BeforeEvent $event) use ($entryPoint) {
-            $accessToken = Client::getAccessToken($entryPoint);
+        $this->httpClient->getEmitter()->on('before', function (BeforeEvent $event) use ($app, $entryPoint) {
+            $accessToken = Client::getAccessToken($app, $entryPoint);
             $event->getRequest()->addHeader('Authorization', 'Bearer ' . $accessToken);
         });
     }

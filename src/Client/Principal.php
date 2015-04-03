@@ -117,8 +117,12 @@ class Principal
     {
         $app = Slim::getInstance();
 
+        /** @var Identity $identity */
+        $identity = $app->container->get('identities');
+
         $clientKey = $app->config('api.identity');
-        $clientSecret = Identity::getSecretKey($clientKey);
+        $clientSecret = $identity->getSecretKey($clientKey);
+
         try {
             $response = (new Client([
                 'base_url' => rtrim($app->config('api.endpoint'), '/') . '/'
@@ -146,8 +150,12 @@ class Principal
     {
         $app = Slim::getInstance();
 
+        /** @var Identity $identity */
+        $identity = $app->container->get('identities');
+
         $clientKey = $app->config('api.identity');
-        $clientSecret = Identity::getSecretKey($clientKey);
+        $clientSecret = $identity->getSecretKey($clientKey);
+
         try {
             $response = (new Client([
                 'base_url' => rtrim($app->config('api.endpoint'), '/') . '/'
@@ -190,7 +198,7 @@ class Principal
 
         try {
             /** @var \Tacit\Client\Response $response */
-            $response = $api->get('security/token/ident');
+            $response = $api->get($app->config('api.route.identity') ?: 'security/token/ident');
 
             if (!$response->isError()) {
                 $data['user'] = $response->getResource();
