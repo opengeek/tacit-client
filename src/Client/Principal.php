@@ -35,17 +35,18 @@ class Principal
      *
      * @param string $username The username.
      * @param string $password The password.
+     * @param string $scope A space-delimited list of scopes to request.
      *
-     * @throws RestfulException If a valid accessToken cannot be retrieved.
-     * @return bool TRUE if authenticated successfully.
+     * @throws RestfulException If an error occurs retrieving an accessToken.
+     * @return bool TRUE if a valid accessToken is retrieved, FALSE otherwise.
      */
-    public static function authenticate($username, $password)
+    public static function authenticate($username, $password, $scope = 'public user')
     {
         if (session_status() === PHP_SESSION_DISABLED) {
             return false;
         }
 
-        $resource = static::accessToken($username, $password);
+        $resource = static::accessToken($username, $password, $scope);
         $resource['expires'] = time() + (integer)$resource['expires_in'];
 
         if (session_status() === PHP_SESSION_NONE) {
@@ -109,11 +110,12 @@ class Principal
      *
      * @param string $username The username.
      * @param string $password The password.
+     * @param string $scope A space-delimited list of scopes to request a token for.
      *
      * @throws RestfulException If an error occurs getting the accessToken.
      * @return array The response body from the request containing the accessToken details.
      */
-    protected static function accessToken($username, $password)
+    protected static function accessToken($username, $password, $scope = 'public user')
     {
         $app = Slim::getInstance();
 
@@ -126,7 +128,7 @@ class Principal
         try {
             $response = (new Client([
                 'base_url' => rtrim($app->config('api.endpoint'), '/') . '/'
-            ]))->post('security/token', [
+            ]))->post($app->config('api.route.token') ?: 'security/token', [
                 'auth' => [$clientKey, $clientSecret],
                 'headers' => [
                     'Content-Type' => 'application/json'
@@ -135,7 +137,7 @@ class Principal
                     'grant_type' => 'password',
                     'username' => $username,
                     'password' => $password,
-                    'scope' => 'public user'
+                    'scope' => $scope
                 ])
             ]);
         } catch (RequestException $e) {
@@ -159,7 +161,7 @@ class Principal
         try {
             $response = (new Client([
                 'base_url' => rtrim($app->config('api.endpoint'), '/') . '/'
-            ]))->post('security/token', [
+            ]))->post($app->config('api.route.token') ?: 'security/token', [
                 'auth' => [$clientKey, $clientSecret],
                 'headers' => [
                     'Content-Type' => 'application/json'

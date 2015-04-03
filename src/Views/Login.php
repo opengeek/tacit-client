@@ -44,9 +44,14 @@ class Login extends View
     public function post()
     {
         try {
-            if (Principal::authenticate($this->app->request->post('username'), $this->app->request->post('password'))) {
-                $this->app->redirect($this->app->request->post('return',
-                    $this->app->request->getUrl() . $this->app->urlFor('Home')));
+            if (Principal::authenticate(
+                $this->app->request->post('username'),
+                $this->app->request->post('password'),
+                $this->app->request->post('scope', 'public user')
+            )) {
+                $this->app->redirect(
+                    $this->app->request->post('return', $this->app->request->getUrl() . $this->app->urlFor('Home'))
+                );
             }
         } catch (RestfulException $e) {
             $er = $e->getResource();
