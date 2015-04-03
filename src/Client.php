@@ -116,37 +116,37 @@ class Client
         });
     }
 
-    public function get($uri = null, $headers = null, $options = array())
+    public function get($uri = null, array $headers = [], $options = [])
     {
-        return $this->httpClient->get($uri, $headers, $options);
+        return $this->httpClient->get($uri, array_merge(['headers' => $headers], $options));
     }
 
-    public function head($uri = null, $headers = null, array $options = array())
+    public function head($uri = null, array $headers = [], array $options = [])
     {
-        return $this->httpClient->head($uri, $headers, $options);
+        return $this->httpClient->head($uri, array_merge(['headers' => $headers], $options));
     }
 
-    public function delete($uri = null, $headers = null, $body = null, array $options = array())
+    public function delete($uri = null, array $headers = [], $body = null, array $options = [])
     {
-        return $this->httpClient->delete($uri, $headers, $body, $options);
+        return $this->httpClient->delete($uri, array_merge(['headers' => $headers, 'body' => $body], $options));
     }
 
-    public function put($uri = null, $headers = null, $body = null, array $options = array())
+    public function put($uri = null, array $headers = [], $body = null, array $options = [])
     {
-        return $this->httpClient->put($uri, $headers, $body, $options);
+        return $this->httpClient->put($uri, array_merge(['headers' => $headers, 'body' => $body], $options));
     }
 
-    public function patch($uri = null, $headers = null, $body = null, array $options = array())
+    public function patch($uri = null, array $headers = [], $body = null, array $options = [])
     {
-        return $this->httpClient->patch($uri, $headers, $body, $options);
+        return $this->httpClient->patch($uri, array_merge(['headers' => $headers, 'body' => $body], $options));
     }
 
-    public function post($uri = null, $headers = null, $postBody = null, array $options = array())
+    public function post($uri = null, array $headers = [], $body = null, array $options = [])
     {
-        return $this->httpClient->post($uri, $headers, $postBody, $options);
+        return $this->httpClient->post($uri, array_merge(['headers' => $headers, 'body' => $body], $options));
     }
 
-    public function options($uri = null, array $options = array())
+    public function options($uri = null, array $options = [])
     {
         return $this->httpClient->options($uri, $options);
     }
