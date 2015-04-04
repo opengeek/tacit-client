@@ -102,7 +102,7 @@ class View
      */
     protected function checkScope()
     {
-        if (!static::hasScope($this->scope)) {
+        if (!static::hasScope($this->scope, $this->app)) {
             $this->app->halt(403, 'You do not have rights to access this resource.');
         }
     }

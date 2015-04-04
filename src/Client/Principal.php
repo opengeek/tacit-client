@@ -204,7 +204,9 @@ class Principal
 
             if (!$response->isError()) {
                 $data['user'] = $response->getResource();
-                $_SESSION[static::SESSION_KEY_PRINCIPAL] = $data;
+                if (session_status() === PHP_SESSION_ACTIVE) {
+                    $_SESSION[static::SESSION_KEY_PRINCIPAL] = $data;
+                }
 
                 return $data['user'];
             }
@@ -309,9 +311,5 @@ class Principal
         }
 
         $this->user = static::user($data);
-
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            $_SESSION[static::SESSION_KEY_PRINCIPAL] = $data;
-        }
     }
 }
