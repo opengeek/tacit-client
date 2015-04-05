@@ -80,10 +80,11 @@ class Principal
                         $scope = $data['scope'];
                     }
                     if (!isset($data['expires'])) {
-                        $data['expires'] = time() - 3600;
+                        $data['expires'] = time() + (isset($data['expires_in']) ? (integer)$data['expires_in'] : 3600);
                     }
                     if (isset($data['refresh_token']) && (time() > $data['expires'])) {
                         $data = array_merge($data, static::refreshToken($data['refresh_token'], $scope));
+                        $data['expires'] = time() + (isset($data['expires_in']) ? (integer)$data['expires_in'] : 3600);
                     }
                     $principal = new static($data);
 
