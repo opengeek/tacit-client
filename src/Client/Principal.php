@@ -76,6 +76,9 @@ class Principal
             if (isset($_SESSION[static::SESSION_KEY_PRINCIPAL])) {
                 $data = $_SESSION[static::SESSION_KEY_PRINCIPAL];
                 if (is_array($data)) {
+                    if (isset($data['scope'])) {
+                        $scope = $data['scope'];
+                    }
                     if (!isset($data['expires'])) {
                         $data['expires'] = time() - 3600;
                     }
