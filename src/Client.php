@@ -73,9 +73,9 @@ class Client
             $identities = $app->container->get('identities');
             $clientSecret = $identities->getSecretKey($clientKey);
 
-            $client = new \GuzzleHttp\Client(['base_url' => rtrim($endPoint, '/')]);
+            $client = new \GuzzleHttp\Client(['base_url' => rtrim($endPoint, '/') . '/']);
             try {
-                $response = $client->post('/security/token', [
+                $response = $client->post($app->config('api.route.token') ?: 'security/token', [
                     'auth' => [$clientKey, $clientSecret],
                     'body' => json_encode([
                         'grant_type' => 'client_credentials',
