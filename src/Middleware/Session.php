@@ -12,6 +12,7 @@ namespace Tacit\Middleware;
 
 use Slim\Middleware;
 use Tacit\Client\Principal;
+use Tacit\Client\RestfulException;
 
 /**
  * Slim Middleware for handling OAuth2 Sessions from a Tacit app.
@@ -25,21 +26,30 @@ class Session extends Middleware
      */
     public function call()
     {
-        /** @var Principal $principal */
-        $principal = Principal::instance();
-        if ($principal) {
-            $this->app->container->set('principal', $principal);
-            $data['accessToken'] = $principal->getAccessToken();
-            $user = $principal->getUser();
-            if (null !== $user) {
-                $data['username'] = $user['username'];
-                $data['user_id'] = $user['id'];
-                $data['user'] = $user;
-            };
-            if ($principal->hasRefreshToken()) {
-                $data['refreshToken'] = $principal->getRefreshToken();
+        try {
+            /** @var Principal $principal */
+            $principal = Principal::instance();
+
+            if ($principal) {
+                $this->app->container->set('principal', $principal);
+                $data['accessToken'] = $principal->getAccessToken();
+                $user = $principal->getUser();
+                if (null !== $user) {
+                    $data['username'] = $user['username'];
+                    $data['user_id'] = $user['id'];
+                    $data['user'] = $user;
+                };
+                if ($principal->hasRefreshToken()) {
+                    $data['refreshToken'] = $principal->getRefreshToken();
+                }
+                $this->app->view()->appendData($data);
             }
-            $this->app->view()->appendData($data);
+        } catch (RestfulException $e) {
+            $this->app->getLog()->critical($e->getMessage(), $e->getResource());
+            Principal::endSession();
+        } catch (\Exception $e) {
+            $this->app->getLog()->critical($e->getMessage());
+            Principal::endSession();
         }
 
         $this->next->call();

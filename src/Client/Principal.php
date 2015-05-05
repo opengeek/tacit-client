@@ -11,7 +11,6 @@
 namespace Tacit\Client;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
 use Slim\Slim;
 
 /**
@@ -142,11 +141,14 @@ class Principal
                     'username' => $username,
                     'password' => $password,
                     'scope' => $scope
-                ])
+                ]),
+                'future' => false
             ]);
-        } catch (RequestException $e) {
-            throw new RestfulException($e->hasResponse() ? $e->getResponse()->json() : [],
-                $e->hasResponse() ? $e->getResponse()->getStatusCode() : 500, $e);
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            throw new RestfulException(
+                $e->hasResponse() ? $e->getResponse()->json() : ['message' => $e->getMessage()],
+                $e->hasResponse() ? $e->getResponse()->getStatusCode() : 500
+            );
         }
 
         return $response->json();
@@ -162,10 +164,12 @@ class Principal
         $clientKey = $app->config('api.identity');
         $clientSecret = $identity->getSecretKey($clientKey);
 
+        $client = new Client([
+            'base_url' => rtrim($app->config('api.endpoint'), '/') . '/'
+        ]);
+
         try {
-            $response = (new Client([
-                'base_url' => rtrim($app->config('api.endpoint'), '/') . '/'
-            ]))->post($app->config('api.route.token') ?: 'security/token', [
+            $response = $client->post($app->config('api.route.token') ?: 'security/token', [
                 'auth' => [$clientKey, $clientSecret],
                 'headers' => [
                     'Content-Type' => 'application/json'
@@ -176,9 +180,11 @@ class Principal
                     'scope' => $scope
                 ])
             ]);
-        } catch (RequestException $e) {
-            throw new RestfulException($e->hasResponse() ? $e->getResponse()->json() : [],
-                $e->hasResponse() ? $e->getResponse()->getStatusCode() : 500, $e);
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            throw new RestfulException(
+                $e->hasResponse() ? $e->getResponse()->json() : ['message' => $e->getMessage()],
+                $e->hasResponse() ? $e->getResponse()->getStatusCode() : 500
+            );
         }
 
         return $response->json();
@@ -194,6 +200,9 @@ class Principal
     protected static function user(array $data)
     {
         if (isset($data['user'])) {
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                $_SESSION[static::SESSION_KEY_PRINCIPAL] = $data;
+            }
             return $data['user'];
         }
 
