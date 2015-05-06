@@ -113,7 +113,7 @@ class Client
         $this->httpClient = new \GuzzleHttp\Client(['base_url' => $entryPoint]);
         $this->httpClient->getEmitter()->on('before', function (BeforeEvent $event) use ($app, $entryPoint) {
             $accessToken = Client::getAccessToken($app, $entryPoint);
-            $event->getRequest()->addHeader('Authorization', 'Bearer ' . $accessToken);
+            $event->getRequest()->setHeader('Authorization', 'Bearer ' . $accessToken);
         });
     }
 
