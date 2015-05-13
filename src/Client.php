@@ -16,6 +16,7 @@ use Slim\Slim;
 use Tacit\Client\Identity;
 use Tacit\Client\Principal;
 use Tacit\Client\Response;
+use Tacit\Client\RestfulException;
 
 /**
  * The base Tacit API Client.
@@ -86,6 +87,7 @@ class Client
                     ]
                 ]);
             } catch (RequestException $e) {
+                $app->getLog()->error($e->getMessage(), $e->hasResponse() ? $e->getResponse()->json() : $e->getTrace());
                 return false;
             }
 
@@ -119,36 +121,89 @@ class Client
 
     public function get($uri = null, array $headers = [], $options = [])
     {
-        return new Response($this->httpClient->get($uri, array_merge(['headers' => $headers], $options)));
+        try {
+            return new Response($this->httpClient->get($uri, array_merge(['headers' => $headers], $options)));
+        } catch (RequestException $e) {
+            throw new RestfulException(
+                $e->hasResponse() ? $e->getResponse()->json() : ['message' => 'Bad Request', 'description' => $e->getMessage()],
+                $e->hasResponse() ? $e->getResponse()->getStatusCode() : 400
+            );
+        }
     }
 
     public function head($uri = null, array $headers = [], array $options = [])
     {
-        return new Response($this->httpClient->head($uri, array_merge(['headers' => $headers], $options)));
+        try {
+            return new Response($this->httpClient->head($uri, array_merge(['headers' => $headers], $options)));
+        } catch (RequestException $e) {
+            throw new RestfulException(
+                $e->hasResponse() ? $e->getResponse()->json() : ['message' => 'Bad Request', 'description' => $e->getMessage()],
+                $e->hasResponse() ? $e->getResponse()->getStatusCode() : 400
+            );
+        }
     }
 
     public function delete($uri = null, array $headers = [], $body = null, array $options = [])
     {
-        return new Response($this->httpClient->delete($uri, array_merge(['headers' => $headers, 'body' => $body], $options)));
+        try {
+            return new Response($this->httpClient->delete($uri,
+                array_merge(['headers' => $headers, 'body' => $body], $options)));
+        } catch (RequestException $e) {
+            throw new RestfulException(
+                $e->hasResponse() ? $e->getResponse()->json() : ['message' => 'Bad Request', 'description' => $e->getMessage()],
+                $e->hasResponse() ? $e->getResponse()->getStatusCode() : 400
+            );
+        }
     }
 
     public function put($uri = null, array $headers = [], $body = null, array $options = [])
     {
-        return new Response($this->httpClient->put($uri, array_merge(['headers' => $headers, 'body' => $body], $options)));
+        try {
+            return new Response($this->httpClient->put($uri,
+                array_merge(['headers' => $headers, 'body' => $body], $options)));
+        } catch (RequestException $e) {
+            throw new RestfulException(
+                $e->hasResponse() ? $e->getResponse()->json() : ['message' => 'Bad Request', 'description' => $e->getMessage()],
+                $e->hasResponse() ? $e->getResponse()->getStatusCode() : 400
+            );
+        }
     }
 
     public function patch($uri = null, array $headers = [], $body = null, array $options = [])
     {
-        return new Response($this->httpClient->patch($uri, array_merge(['headers' => $headers, 'body' => $body], $options)));
+        try {
+            return new Response($this->httpClient->patch($uri,
+                array_merge(['headers' => $headers, 'body' => $body], $options)));
+        } catch (RequestException $e) {
+            throw new RestfulException(
+                $e->hasResponse() ? $e->getResponse()->json() : ['message' => 'Bad Request', 'description' => $e->getMessage()],
+                $e->hasResponse() ? $e->getResponse()->getStatusCode() : 400
+            );
+        }
     }
 
     public function post($uri = null, array $headers = [], $body = null, array $options = [])
     {
-        return new Response($this->httpClient->post($uri, array_merge(['headers' => $headers, 'body' => $body], $options)));
+        try {
+            return new Response($this->httpClient->post($uri,
+                array_merge(['headers' => $headers, 'body' => $body], $options)));
+        } catch (RequestException $e) {
+            throw new RestfulException(
+                $e->hasResponse() ? $e->getResponse()->json() : ['message' => 'Bad Request', 'description' => $e->getMessage()],
+                $e->hasResponse() ? $e->getResponse()->getStatusCode() : 400
+            );
+        }
     }
 
     public function options($uri = null, array $options = [])
     {
-        return new Response($this->httpClient->options($uri, $options));
+        try {
+            return new Response($this->httpClient->options($uri, $options));
+        } catch (RequestException $e) {
+            throw new RestfulException(
+                $e->hasResponse() ? $e->getResponse()->json() : ['message' => 'Bad Request', 'description' => $e->getMessage()],
+                $e->hasResponse() ? $e->getResponse()->getStatusCode() : 400
+            );
+        }
     }
 }
