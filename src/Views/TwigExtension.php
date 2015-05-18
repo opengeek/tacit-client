@@ -41,8 +41,26 @@ class TwigExtension extends \Twig_Extension
     {
         return [
             new \Twig_SimpleFunction('referrer', [$this, 'referrer']),
-            new \Twig_SimpleFunction('self', [$this, 'self'])
+            new \Twig_SimpleFunction('self', [$this, 'self']),
+            new \Twig_SimpleFunction('urlFor', [$this, 'urlFor'])
         ];
+    }
+
+    public function urlFor($route, array $routeParams = [], array $query = [], $appName = 'default')
+    {
+        $app = Slim::getInstance($appName);
+
+        $url = $app->urlFor($route, $routeParams);
+
+        if (!empty($query)) {
+            $flattened = [];
+            foreach ($query as $key => $value) {
+                $flattened[] = rawurlencode($key) . '=' . rawurlencode($value);
+            }
+            $url .= '?' . implode('&', $flattened);
+        }
+
+        return $url;
     }
 
     /**
