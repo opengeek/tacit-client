@@ -265,6 +265,16 @@ class Principal
     }
 
     /**
+     * Return a timestamp representing the expiration time of the current access_token.
+     *
+     * @return int
+     */
+    public function getExpires()
+    {
+        return $this->expires;
+    }
+
+    /**
      * Return an OAuth2 refresh_token assigned to the Principal.
      *
      * @return string

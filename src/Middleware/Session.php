@@ -33,6 +33,7 @@ class Session extends Middleware
             if ($principal) {
                 $this->app->container->set('principal', $principal);
                 $data['accessToken'] = $principal->getAccessToken();
+                $data['accessTokenExpires'] = $principal->getExpires();
                 $user = $principal->getUser();
                 if (null !== $user) {
                     $data['username'] = $user['username'];
