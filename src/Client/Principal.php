@@ -70,6 +70,8 @@ class Principal
     {
         if (session_status() === PHP_SESSION_NONE && isset($_COOKIE[session_name()])) {
             session_start();
+            $params = session_get_cookie_params();
+            setcookie(session_name(), session_id(), time() + $params['lifetime'], $params['path'], $params['domain'], $params['secure'], $params['httponly']);
         }
         if (session_status() === PHP_SESSION_ACTIVE) {
             if (isset($_SESSION[static::SESSION_KEY_PRINCIPAL])) {
@@ -103,7 +105,7 @@ class Principal
     {
         if (session_status() === PHP_SESSION_ACTIVE) {
             $params = session_get_cookie_params();
-            setcookie(session_name(), '', time() - 3600, $params['path']);
+            setcookie(session_name(), '', time() - 3600, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
             session_destroy();
         }
     }
