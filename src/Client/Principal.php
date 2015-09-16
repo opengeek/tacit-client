@@ -11,6 +11,7 @@
 namespace Tacit\Client;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 use Slim\Slim;
 
 /**
@@ -146,7 +147,7 @@ class Principal
                 ]),
                 'future' => false
             ]);
-        } catch (\GuzzleHttp\Exception\RequestException $e) {
+        } catch (RequestException $e) {
             throw new RestfulException(
                 $e->hasResponse() ? $e->getResponse()->json() : ['message' => $e->getMessage()],
                 $e->hasResponse() ? $e->getResponse()->getStatusCode() : 500
@@ -182,7 +183,7 @@ class Principal
                     'scope' => $scope
                 ])
             ]);
-        } catch (\GuzzleHttp\Exception\RequestException $e) {
+        } catch (RequestException $e) {
             throw new RestfulException(
                 $e->hasResponse() ? $e->getResponse()->json() : ['message' => $e->getMessage()],
                 $e->hasResponse() ? $e->getResponse()->getStatusCode() : 500
