@@ -72,7 +72,15 @@ class Principal
         if (session_status() === PHP_SESSION_NONE && isset($_COOKIE[session_name()])) {
             session_start();
             $params = session_get_cookie_params();
-            setcookie(session_name(), session_id(), time() + $params['lifetime'], $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+            setcookie(
+                session_name(),
+                session_id(),
+                $params['lifetime'] > 0 ? time() + $params['lifetime'] : 0,
+                $params['path'],
+                $params['domain'],
+                $params['secure'],
+                $params['httponly']
+            );
         }
         if (session_status() === PHP_SESSION_ACTIVE) {
             if (isset($_SESSION[static::SESSION_KEY_PRINCIPAL])) {
