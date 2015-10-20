@@ -95,7 +95,10 @@ class Principal
                     if (isset($data['refresh_token']) && (time() > $data['expires'])) {
                         $data = array_merge($data, static::refreshToken($data['refresh_token'], $scope));
                         $data['expires'] = time() + (isset($data['expires_in']) ? (integer)$data['expires_in'] : 3600);
+                        
+                        unset($data['user']);
                     }
+                    
                     $principal = new static($data);
 
                     return $principal;
