@@ -258,9 +258,9 @@ class Principal
         $requestedScopes = explode(' ', $scope);
         $intersection = array_intersect($requestedScopes, $authorizedScopes);
         if (count($intersection) === count($requestedScopes)) {
-            if (in_array('user', $requestedScopes) || in_array('admin', $requestedScopes)) {
-                return $this->authorized;
-            }
+//            if (in_array('user', $requestedScopes) || in_array('admin', $requestedScopes)) {
+//                return $this->authorized;
+//            }
 
             return true;
         }

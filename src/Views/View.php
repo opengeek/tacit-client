@@ -88,7 +88,7 @@ class View
             $data = $argCount > 1 ? func_get_arg(1) : [];
 
             try {
-                $this->app->render($template, $data);
+                $this->app->view()->display($template, $data);
             } catch (\Exception $e) {
                 $this->app->halt(500, $e->getMessage());
             }
