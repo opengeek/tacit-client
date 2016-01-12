@@ -64,6 +64,10 @@ class View
         $principal = $app->container->get('principal');
         if (null === $principal) {
             $resourceUrl = $app->request->getRootUri() . $app->request->getResourceUri();
+            $params = $app->request->get(null, []);
+            if (!empty($params)) {
+                $resourceUrl .= '?' . http_build_query($params);
+            }
             $app->render('login.twig', ['return' => $resourceUrl], 401);
             $app->stop();
         }
